@@ -15,6 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useServerAction } from "zsa-react";
 import { createOGAction } from "@/lib/actions/create-og";
 import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
 import createOGSchema, {
   type CreateOGSchema,
 } from "@/lib/actions/create-og-schema";
@@ -52,9 +53,19 @@ export default function OGForm() {
     data: result,
   } = useServerAction(createOGAction);
 
+  // 创建重置表单和图片状态的函数
+  const resetForm = () => {
+    form.reset();
+    setImagePreview(null);
+    setImageError(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   useEffect(() => {
     if (result && result.id) {
-      form.reset();
+      resetForm();
       window.navigator.clipboard.writeText(
         window.location.origin + "/generated/" + result.id
       );
@@ -74,9 +85,9 @@ export default function OGForm() {
         toast.error("生成失败", {
           description: error.message,
         });
-        form.reset();
       }
     }
+    resetForm();
   }, [error]);
 
   // 检查图片URL是否有效
@@ -100,9 +111,9 @@ export default function OGForm() {
     }
 
     try {
-      const urlRegex = /^(https?:\/\/)/i;
-      if (!urlRegex.test(url)) {
-        setImageError("请输入有效的URL地址（以http://或https://开头）");
+      const httpsRegex = /^(https:\/\/)/i;
+      if (!httpsRegex.test(url)) {
+        setImageError("请输入有效的HTTPS地址（以https://开头）");
         setImagePreview(null);
         return;
       }
@@ -236,7 +247,7 @@ export default function OGForm() {
                 <FormDescription>页面描述,更加详细的页面介绍</FormDescription>
               </FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Textarea {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

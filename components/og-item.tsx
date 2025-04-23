@@ -87,7 +87,7 @@ export default function OGItem({
     <Card className="overflow-hidden hover:shadow-md transition-shadow duration-300">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
-          <CardTitle className="text-lg font-semibold truncate">
+          <CardTitle className="text-lg font-semibold truncate max-w-[80%]">
             {title}
           </CardTitle>
           <Badge>{id}</Badge>

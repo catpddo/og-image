@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import OGPreviewSkeleton from "@/components/og-preview-skeleton";
 import { Metadata } from "next";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
+
 interface GeneratedPageProps {
   params: Promise<{
     uid: string;
@@ -48,10 +49,12 @@ export async function generateMetadata({
 export default async function GeneratedPage({ params }: GeneratedPageProps) {
   const { uid } = await params;
   return (
-    <div className="w-full h-full min-w-svw min-h-svh flex justify-center items-center bg-muted">
-      <Suspense fallback={<OGPreviewSkeleton />}>
-        <OGPreview id={uid} />
-      </Suspense>
+    <div className="w-full h-svh flex justify-center items-center bg-muted p-4">
+      <div className="container max-w-md mx-auto max-h-[80svh]">
+        <Suspense fallback={<OGPreviewSkeleton />}>
+          <OGPreview id={uid} />
+        </Suspense>
+      </div>
     </div>
   );
 }
