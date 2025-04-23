@@ -41,7 +41,7 @@ export default function OGForm() {
       description: "",
       image: "",
       url: "",
-      expiration: 1,
+      expiration: 24 * 30,
     },
     mode: "onBlur",
   });
@@ -54,6 +54,7 @@ export default function OGForm() {
 
   useEffect(() => {
     if (result && result.id) {
+      form.reset();
       window.navigator.clipboard.writeText(
         window.location.origin + "/generated/" + result.id
       );
@@ -61,7 +62,6 @@ export default function OGForm() {
         action: {
           label: "前往查看",
           onClick: () => {
-            form.reset();
             router.push(`/generated/${result.id}`);
           },
         },

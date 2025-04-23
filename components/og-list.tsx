@@ -10,7 +10,9 @@ import OGItem from "./og-item";
 import { OGInfo } from "@/lib/actions/create-og-schema";
 import { Button } from "./ui/button";
 import Link from "next/link";
-export default async function OGList() {
+
+// 将OGList组件改为异步函数
+async function OGListContent() {
   const {
     env: { OG_IMAGE_CACHE, ACCESS_SECRET },
   } = await getCloudflareContext({ async: true });
@@ -61,3 +63,5 @@ export default async function OGList() {
     </Card>
   );
 }
+
+export default OGListContent;

@@ -41,10 +41,10 @@ export default async function OGPreview({ id }: OGPreviewProps) {
     <Card className="w-full max-w-md min-h-1/3">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
+        <CardDescription className="line-clamp-4">{description}</CardDescription>
       </CardHeader>
       <Separator />
-      <CardContent>
+      <CardContent className="flex flex-col gap-2">
         <img src={image} alt={title} className="w-full h-full object-cover" />
         <Link href={url} target="_blank">
           <Button>前往查看</Button>

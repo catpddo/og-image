@@ -1,4 +1,5 @@
-import OGList from "@/components/og-list";
+import OGListContent from "@/components/og-list";
+import OGListSkeleton from "@/components/og-list-skeleton";
 import {
   Card,
   CardContent,
@@ -8,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { Suspense } from "react";
 
 interface DashboardPageProps {
   searchParams: Promise<{
@@ -45,7 +47,9 @@ export default async function DashboardPage({
 
   return (
     <div className="w-full h-full min-w-svw min-h-svh max-h-svh flex justify-center items-center bg-muted p-5">
-      <OGList />
+      <Suspense fallback={<OGListSkeleton />}>
+        <OGListContent />
+      </Suspense>
     </div>
   );
 }
