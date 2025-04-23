@@ -10,7 +10,7 @@ import {
   FormMessage,
   FormDescription,
 } from "./ui/form";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useServerAction } from "zsa-react";
 import { createOGAction } from "@/lib/actions/create-og";

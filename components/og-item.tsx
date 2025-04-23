@@ -1,7 +1,7 @@
 "use client";
 import { OGInfo } from "@/lib/actions/create-og-schema";
 import { Button } from "./ui/button";
-import { Trash2, CopyIcon, ImageIcon, Loader2 } from "lucide-react";
+import { Trash2, CopyIcon, ImageIcon, Loader2, PencilIcon } from "lucide-react";
 import Link from "next/link";
 import {
   Card,
@@ -23,6 +23,19 @@ import { useEffect, useState } from "react";
 import { deleteOGAction } from "@/lib/actions/delete-og";
 import { useServerAction } from "zsa-react";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
+import { Input } from "./ui/input";
+import { editOGAction } from "@/lib/actions/edit-og";
+import { useRouter } from "next/navigation";
 export default function OGItem({
   id,
   title,
@@ -75,6 +88,8 @@ export default function OGItem({
     return { hours, minutes, secs };
   };
 
+  const router = useRouter();
+
   const { execute, isPending, isSuccess } = useServerAction(deleteOGAction);
 
   useEffect(() => {
@@ -87,7 +102,7 @@ export default function OGItem({
     <Card className="overflow-hidden hover:shadow-md transition-shadow duration-300">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
-          <CardTitle className="text-lg font-semibold truncate max-w-[80%]">
+          <CardTitle className="text-lg font-semibold truncate max-w-[80%] overflow-hidden text-ellipsis">
             {title}
           </CardTitle>
           <Badge>{id}</Badge>
@@ -133,7 +148,7 @@ export default function OGItem({
         )}
       </CardContent>
 
-      <CardFooter className="pt-0 flex justify-between border-t gap-2">
+      <CardFooter className="pt-0 flex flex-col justify-between border-t gap-2">
         <div className="flex items-center gap-2">
           <Badge variant="outline" className="text-xs px-2 py-0.5 bg-muted">
             {remainingTime ? (
@@ -223,6 +238,55 @@ export default function OGItem({
               <TooltipContent>复制链接</TooltipContent>
             </Tooltip>
           </TooltipProvider>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                size="icon"
+                className="h-8 w-8 opacity-80 hover:opacity-100"
+              >
+                <PencilIcon className="h-4 w-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>编辑</DialogTitle>
+                <DialogDescription>编辑跳转链接</DialogDescription>
+              </DialogHeader>
+              <form
+                className="flex gap-2 flex-col md:flex-row"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const formData = new FormData(e.target as HTMLFormElement);
+                  const url = formData.get("url");
+                  if (!url) return;
+                  editOGAction({ id, url: url as string })
+                    .then(() => {
+                      toast.success("更新成功");
+                      router.refresh();
+                    })
+                    .catch((err) => {
+                      toast.error(err.message);
+                    });
+                }}
+              >
+                <Input
+                  type="text"
+                  name="url"
+                  placeholder="跳转链接"
+                  defaultValue={url || ""}
+                />
+
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button type="submit">更新</Button>
+                  </DialogClose>
+                  <DialogClose asChild>
+                    <Button variant={"outline"}>取消</Button>
+                  </DialogClose>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       </CardFooter>
     </Card>
