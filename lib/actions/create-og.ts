@@ -1,20 +1,13 @@
-import createOGSchema from "@/lib/actions/create-og-schema";
+"use server";
+import createOGSchema, { OGInfo } from "@/lib/actions/create-og-schema";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { nanoid } from "nanoid";
 import { createServerAction } from "zsa";
 
-interface OGInfo {
-  id: string;
-  title: string;
-  description?: string;
-  image?: string;
-  url?: string;
-}
-
 export const createOGAction = createServerAction()
   .input(createOGSchema)
   .handler(async ({ input }) => {
-    const { title, description, image, url } = input;
+    const { title, description, image, url, expiration } = input;
     let id = nanoid(6); //用于查询
     const info: OGInfo = {
       id: "",
@@ -34,15 +27,11 @@ export const createOGAction = createServerAction()
       id = nanoid(6);
     }
 
-    // 如果图片是url则直接保存，如果图片是base64则需要先保存到r2
     if (info.image && !info.image.startsWith("http")) {
-      // 检查图片类型，用于生成文件名和metadata
       const imageType = info.image.split(";")[0].split("/")[1];
       const imageName = `${id}.${imageType}`;
-
-      // 保存图片到r2
-      const imageBuffer = Buffer.from(info.image.split(",")[1], "base64");
-      await OG_IMAGE_STORE.put(imageName, imageBuffer, {
+      const imageBuffer = base64ToBuffer(info.image);
+      const r = await OG_IMAGE_STORE.put(imageName, imageBuffer, {
         httpMetadata: {
           contentType: `image/${imageType}`,
           contentEncoding: "base64",
@@ -50,16 +39,29 @@ export const createOGAction = createServerAction()
         },
       });
 
-      // 更新info
       info.image = R2_DOMAIN.startsWith("http")
         ? `${R2_DOMAIN}/${imageName}`
         : `https://${R2_DOMAIN}/${imageName}`;
     }
 
-    // 保存info到kv
-    await OG_IMAGE_CACHE.put(id, JSON.stringify(info));
+    await OG_IMAGE_CACHE.put(id, JSON.stringify(info), {
+      expirationTtl: expiration ? expiration * 60 * 60 : undefined,
+    });
 
     return {
       id,
     };
   });
+
+function base64ToBuffer(base64: string): ArrayBuffer {
+  const base64String = base64.split(",")[1];
+  const binaryString = atob(base64String);
+  const length = binaryString.length;
+  const arrayBuffer = new ArrayBuffer(length);
+  const view = new Uint8Array(arrayBuffer);
+  for (let i = 0; i < length; i++) {
+    view[i] = binaryString.charCodeAt(i);
+  }
+
+  return arrayBuffer;
+}

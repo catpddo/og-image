@@ -10,7 +10,7 @@ import {
   FormMessage,
   FormDescription,
 } from "./ui/form";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useServerAction } from "zsa-react";
 import { createOGAction } from "@/lib/actions/create-og";
@@ -41,6 +41,7 @@ export default function OGForm() {
       description: "",
       image: "",
       url: "",
+      expiration: 1,
     },
     mode: "onBlur",
   });
@@ -52,10 +53,17 @@ export default function OGForm() {
   } = useServerAction(createOGAction);
 
   useEffect(() => {
-    if (result) {
-      toast.success("生成成功,正在跳转预览...", {
-        onAutoClose: () => {
-          router.push(`/generated/${result.id}`);
+    if (result && result.id) {
+      window.navigator.clipboard.writeText(
+        window.location.origin + "/generated/" + result.id
+      );
+      toast.success("生成成功,访问链接已经复制到剪贴板,前往查看", {
+        action: {
+          label: "前往查看",
+          onClick: () => {
+            form.reset();
+            router.push(`/generated/${result.id}`);
+          },
         },
       });
     }
@@ -199,7 +207,7 @@ export default function OGForm() {
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(execute)}
+        onSubmit={form.handleSubmit((data) => execute(data))}
         className="flex flex-col gap-4"
       >
         <FormField
@@ -358,6 +366,22 @@ export default function OGForm() {
                   </FormControl>
                 </TabsContent>
               </Tabs>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="expiration"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>有效期</FormLabel>
+              <FormDescription>
+                选填，如果需要设置有效期，请填写有效期（单位：小时）
+              </FormDescription>
+              <FormControl>
+                <Input type="number" {...field} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
