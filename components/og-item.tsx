@@ -1,7 +1,7 @@
 "use client";
 import { OGInfo } from "@/lib/actions/create-og-schema";
 import { Button } from "./ui/button";
-import { Trash2, CopyIcon, ImageIcon } from "lucide-react";
+import { Trash2, CopyIcon, ImageIcon, Loader2 } from "lucide-react";
 import Link from "next/link";
 import {
   Card,
@@ -21,7 +21,8 @@ import { Badge } from "./ui/badge";
 import AnimatedCount from "./animated-count";
 import { useEffect, useState } from "react";
 import { deleteOGAction } from "@/lib/actions/delete-og";
-
+import { useServerAction } from "zsa-react";
+import { toast } from "sonner";
 export default function OGItem({
   id,
   title,
@@ -35,7 +36,9 @@ export default function OGItem({
   };
   // 添加倒计时状态
   const [remainingTime, setRemainingTime] = useState<number | undefined>(
-    expiration ? Math.max(0, Math.floor(expiration - Date.now() / 1000)) : undefined
+    expiration
+      ? Math.max(0, Math.floor(expiration - Date.now() / 1000))
+      : undefined
   );
 
   // 实现倒计时逻辑
@@ -45,9 +48,12 @@ export default function OGItem({
     // 设置倒计时每秒更新一次
     const timer = setInterval(() => {
       if (expiration) {
-        const newRemainingTime = Math.max(0, Math.floor(expiration - Date.now() / 1000));
+        const newRemainingTime = Math.max(
+          0,
+          Math.floor(expiration - Date.now() / 1000)
+        );
         setRemainingTime(newRemainingTime);
-        
+
         // 如果时间到了，清除定时器
         if (newRemainingTime <= 0) {
           clearInterval(timer);
@@ -68,6 +74,14 @@ export default function OGItem({
     const secs = seconds % 60;
     return { hours, minutes, secs };
   };
+
+  const { execute, isPending, isSuccess } = useServerAction(deleteOGAction);
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("删除成功");
+    }
+  }, [isSuccess]);
 
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow duration-300">
@@ -180,9 +194,14 @@ export default function OGItem({
                   variant={"destructive"}
                   size="icon"
                   className="h-8 w-8 opacity-80 hover:opacity-100"
-                  onClick={() => deleteOGAction(id)}
+                  onClick={() => execute(id)}
+                  disabled={isPending}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  {isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4" />
+                  )}
                 </Button>
               </TooltipTrigger>
               <TooltipContent>删除</TooltipContent>
