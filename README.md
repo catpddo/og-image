@@ -2,7 +2,7 @@
 
 轻量级、高效的 Open Graph 图片生成工具，基于 Next.js 和 Cloudflare Workers 构建，用于社交媒体分享时生成精美的预览卡片。
 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/yourusername/og-image)
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/catpddo/og-image)
 
 ## 功能特点
 
@@ -18,8 +18,6 @@
 ### 前置要求
 
 - Cloudflare 账户
-- Cloudflare R2 存储桶
-- Cloudflare KV 命名空间
 
 ### 部署步骤
 
@@ -28,6 +26,17 @@
 3. 项目部署完成后，在 Cloudflare Workers 控制面板中设置以下环境变量:
    - `R2_DOMAIN`: R2 存储桶的域名
    - `ACCESS_SECRET`: 访问密钥，用于保护生成接口
+
+### 绑定自定义域名
+
+为了更好的使用体验，强烈建议为您的 Worker 绑定自定义域名：
+
+1. 登录 Cloudflare 控制台
+2. 进入 Workers & Pages > 您的应用 > 设置 > 自定义域
+3. 点击"添加自定义域"，输入您的域名（如 `og.example.com`）
+4. 按照提示完成 DNS 记录配置
+
+绑定自定义域名后，您可以通过 `https://og.example.com` 访问您的 OG 图片生成器，而不是使用默认的 `.workers.dev` 域名。这对于生产环境非常重要，也有助于保持 URL 的简洁性。
 
 ### 环境变量说明
 
