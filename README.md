@@ -23,9 +23,11 @@
 
 1. 点击上方 "Deploy to Cloudflare Workers" 按钮
 2. 按照指引配置您的 Worker
-3. 项目部署完成后，在 Cloudflare Workers 控制面板中设置以下环境变量:
+3. 在 Cloudflare 部署界面中，设置以下构建环境变量:
    - `R2_DOMAIN`: R2 存储桶的域名
    - `ACCESS_SECRET`: 访问密钥，用于保护生成接口
+4. 确认构建命令为 `npm run build`，部署命令为 `npm run deploy`
+5. 项目部署完成后，在 Cloudflare Workers 控制面板中再次确认环境变量设置正确
 
 ### 绑定自定义域名
 
